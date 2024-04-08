@@ -1,0 +1,86 @@
+{
+    "Version": "1.00",
+    "Sections": [
+	{
+            "Name": "FootstepSettings",
+            "Description": "Related To Footstep Sound Settings",
+            "IsAdvanced": false,
+            "Keys": [
+				{
+                    "Value": true,
+                    "Name": "AllowFootstepSounds",
+                    "Description": "If Player Footsteps Should Make A Sound || Default = True",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.ToggleKey"
+                },
+				{
+                    "Min": 0.0,
+                    "Max": 5.0,
+                    "Value": 1.0,
+                    "Name": "FootstepVolumeMulti",
+                    "Description": "The Volume Level Multiplier For Footstep Sounds",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.SliderFloatKey"
+                },
+				{
+                    "Min": 0.3,
+                    "Max": 3.0,
+                    "Value": 0.6,
+                    "Name": "FootstepFrequency",
+                    "Description": "How Frequent Footstep Sounds Should Be, Lower = More Often, Higher = Less Often",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.SliderFloatKey"
+                }
+            ],
+            "$version": "v1"
+        },
+		{
+            "Name": "ArmorSwaySettings",
+            "Description": "Related To Armor Sway Sound Settings",
+            "IsAdvanced": false,
+            "Keys": [
+                {
+                    "Value": true,
+                    "Name": "AllowArmorSwaySounds",
+                    "Description": "If Armor Specific Sounds Play When The Player Moves About || Default = True",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.ToggleKey"
+                },
+				{
+                    "Min": 0.0,
+                    "Max": 5.0,
+                    "Value": 1.0,
+                    "Name": "ArmorSwayVolumeMulti",
+                    "Description": "The Volume Level Multiplier For Armor Sway Sounds",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.SliderFloatKey"
+                },
+				{
+                    "Min": 0.3,
+                    "Max": 3.0,
+                    "Value": 0.6,
+                    "Name": "ArmorSwayFrequency",
+                    "Description": "How Frequent Armor Sway Sounds Should Be, Lower = More Often, Higher = Less Often",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.SliderFloatKey"
+                }
+            ],
+            "$version": "v1"
+        },
+		{
+            "Name": "CompatibilityWarningSettings",
+            "Description": "Related To Automatic Mod Compatibility Warning Messages",
+            "IsAdvanced": false,
+            "Keys": [
+				{
+                    "Value": true,
+                    "Name": "AllowModCompatWarnings",
+                    "Description": "If Mod Should Give Warning Messages About Detected Incompatibility Issues || Default = True",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.ToggleKey"
+                }
+            ],
+            "$version": "v1"
+        }
+    ]
+}
