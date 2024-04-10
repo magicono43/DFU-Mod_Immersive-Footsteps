@@ -3,7 +3,7 @@
 // License:         MIT License (http://www.opensource.org/licenses/mit-license.php)
 // Author:          Kirk.O
 // Created On: 	    2/13/2024, 9:00 PM
-// Last Edit:		4/7/2024, 10:00 PM
+// Last Edit:		4/9/2024, 9:30 PM
 // Version:			1.00
 // Special Thanks:  Joshcamas
 // Modifier:		
@@ -33,6 +33,8 @@ namespace ImmersiveFootsteps
         static Mod mod;
 
         // Options
+        public static int SoundClipQuality { get; set; }
+
         public static bool AllowFootstepSounds { get; set; }
         public static float FootstepVolumeMulti { get; set; }
         public static float FootstepFrequency { get; set; }
@@ -119,7 +121,6 @@ namespace ImmersiveFootsteps
         public static AudioClip[] UnarmoredHardLanding = { null, null };
         public static AudioClip[] WaterLandingSound = { null };
 
-        public static AudioClip[] TestFootstepSound = { null, null, null, null, null, null };
         public static AudioClip[] FootstepSoundDungeon = { null, null, null, null, null };
         public static AudioClip[] FootstepSoundOutside = { null, null, null };
         public static AudioClip[] FootstepSoundSnow = { null, null, null };
@@ -176,6 +177,8 @@ namespace ImmersiveFootsteps
 
         private static void LoadSettings(ModSettings modSettings, ModSettingsChange change)
         {
+            SoundClipQuality = mod.GetSettings().GetValue<int>("AudioQualitySettings", "SoundClipQuality");
+
             AllowFootstepSounds = mod.GetSettings().GetValue<bool>("FootstepSettings", "AllowFootstepSounds");
             FootstepVolumeMulti = mod.GetSettings().GetValue<float>("FootstepSettings", "FootstepVolumeMulti");
             FootstepFrequency = mod.GetSettings().GetValue<float>("FootstepSettings", "FootstepFrequency");
@@ -190,6 +193,12 @@ namespace ImmersiveFootsteps
             plateSwayInterval = ArmorSwayFrequency;
             chainSwayInterval = ArmorSwayFrequency;
             leatherSwayInterval = ArmorSwayFrequency;
+
+            if (change.HasChanged("AudioQualitySettings", "SoundClipQuality"))
+            {
+                // Reloads Audio Resources If "Audio Quality" Setting Has Been Changed
+                Instance.LoadAudio();
+            }
         }
 
         private void ModCompatibilityChecking()
@@ -500,142 +509,267 @@ namespace ImmersiveFootsteps
             ModManager modManager = ModManager.Instance;
             bool success = true;
 
-            success &= modManager.TryGetAsset("Testing_1", false, out TestFootstepSound[0]);
-            success &= modManager.TryGetAsset("Testing_2", false, out TestFootstepSound[1]);
-            success &= modManager.TryGetAsset("Testing_3", false, out TestFootstepSound[2]);
-            success &= modManager.TryGetAsset("Testing_4", false, out TestFootstepSound[3]);
-            success &= modManager.TryGetAsset("Testing_5", false, out TestFootstepSound[4]);
-            success &= modManager.TryGetAsset("Testing_6", false, out TestFootstepSound[5]);
+            if (SoundClipQuality == 1)
+            {
+                success &= modManager.TryGetAsset("HQ_Chainmail_Footstep_1", false, out ChainmailFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Footstep_2", false, out ChainmailFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Footstep_3", false, out ChainmailFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Footstep_4", false, out ChainmailFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Footstep_5", false, out ChainmailFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Footstep_6", false, out ChainmailFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Chainmail_Footstep_1", false, out ChainmailFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Chainmail_Footstep_2", false, out ChainmailFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Chainmail_Footstep_3", false, out ChainmailFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Chainmail_Footstep_4", false, out ChainmailFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Chainmail_Footstep_5", false, out ChainmailFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Chainmail_Footstep_6", false, out ChainmailFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Leather_Footstep_1", false, out LeatherFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Leather_Footstep_2", false, out LeatherFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Leather_Footstep_3", false, out LeatherFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Leather_Footstep_4", false, out LeatherFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Leather_Footstep_5", false, out LeatherFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Leather_Footstep_6", false, out LeatherFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Leather_Footstep_1", false, out LeatherFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Leather_Footstep_2", false, out LeatherFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Leather_Footstep_3", false, out LeatherFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Leather_Footstep_4", false, out LeatherFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Leather_Footstep_5", false, out LeatherFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Leather_Footstep_6", false, out LeatherFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Plate_Footstep_1", false, out PlateFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Plate_Footstep_2", false, out PlateFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Plate_Footstep_3", false, out PlateFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Plate_Footstep_4", false, out PlateFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Plate_Footstep_5", false, out PlateFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Plate_Footstep_6", false, out PlateFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Plate_Footstep_1", false, out PlateFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Plate_Footstep_2", false, out PlateFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Plate_Footstep_3", false, out PlateFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Plate_Footstep_4", false, out PlateFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Plate_Footstep_5", false, out PlateFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Plate_Footstep_6", false, out PlateFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Unarmored_Footstep_1", false, out UnarmoredFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Unarmored_Footstep_2", false, out UnarmoredFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Unarmored_Footstep_3", false, out UnarmoredFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Unarmored_Footstep_4", false, out UnarmoredFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Unarmored_Footstep_5", false, out UnarmoredFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Unarmored_Footstep_6", false, out UnarmoredFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Unarmored_Footstep_1", false, out UnarmoredFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Unarmored_Footstep_2", false, out UnarmoredFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Unarmored_Footstep_3", false, out UnarmoredFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Unarmored_Footstep_4", false, out UnarmoredFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Unarmored_Footstep_5", false, out UnarmoredFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Unarmored_Footstep_6", false, out UnarmoredFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Swaying_1", false, out ChainmailSwaying[0]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Swaying_2", false, out ChainmailSwaying[1]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Swaying_3", false, out ChainmailSwaying[2]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Swaying_4", false, out ChainmailSwaying[3]);
 
-            success &= modManager.TryGetAsset("Chainmail_Swaying_1", false, out ChainmailSwaying[0]);
-            success &= modManager.TryGetAsset("Chainmail_Swaying_2", false, out ChainmailSwaying[1]);
-            success &= modManager.TryGetAsset("Chainmail_Swaying_3", false, out ChainmailSwaying[2]);
-            success &= modManager.TryGetAsset("Chainmail_Swaying_4", false, out ChainmailSwaying[3]);
+                success &= modManager.TryGetAsset("HQ_Leather_Swaying_1", false, out LeatherSwaying[0]);
+                success &= modManager.TryGetAsset("HQ_Leather_Swaying_2", false, out LeatherSwaying[1]);
+                success &= modManager.TryGetAsset("HQ_Leather_Swaying_3", false, out LeatherSwaying[2]);
+                success &= modManager.TryGetAsset("HQ_Leather_Swaying_4", false, out LeatherSwaying[3]);
 
-            success &= modManager.TryGetAsset("Leather_Swaying_1", false, out LeatherSwaying[0]);
-            success &= modManager.TryGetAsset("Leather_Swaying_2", false, out LeatherSwaying[1]);
-            success &= modManager.TryGetAsset("Leather_Swaying_3", false, out LeatherSwaying[2]);
-            success &= modManager.TryGetAsset("Leather_Swaying_4", false, out LeatherSwaying[3]);
+                success &= modManager.TryGetAsset("HQ_Plate_Swaying_1", false, out PlateSwaying[0]);
+                success &= modManager.TryGetAsset("HQ_Plate_Swaying_2", false, out PlateSwaying[1]);
+                success &= modManager.TryGetAsset("HQ_Plate_Swaying_3", false, out PlateSwaying[2]);
+                success &= modManager.TryGetAsset("HQ_Plate_Swaying_4", false, out PlateSwaying[3]);
 
-            success &= modManager.TryGetAsset("Plate_Swaying_1", false, out PlateSwaying[0]);
-            success &= modManager.TryGetAsset("Plate_Swaying_2", false, out PlateSwaying[1]);
-            success &= modManager.TryGetAsset("Plate_Swaying_3", false, out PlateSwaying[2]);
-            success &= modManager.TryGetAsset("Plate_Swaying_4", false, out PlateSwaying[3]);
+                success &= modManager.TryGetAsset("HQ_Deep_Water_Footstep_1", false, out DeepWaterFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Deep_Water_Footstep_2", false, out DeepWaterFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Deep_Water_Footstep_3", false, out DeepWaterFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Deep_Water_Footstep_4", false, out DeepWaterFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Deep_Water_Footstep_5", false, out DeepWaterFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Deep_Water_Footstep_6", false, out DeepWaterFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Deep_Water_Footstep_1", false, out DeepWaterFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Deep_Water_Footstep_2", false, out DeepWaterFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Deep_Water_Footstep_3", false, out DeepWaterFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Deep_Water_Footstep_4", false, out DeepWaterFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Deep_Water_Footstep_5", false, out DeepWaterFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Deep_Water_Footstep_6", false, out DeepWaterFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Grass_Footstep_1", false, out GrassFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Grass_Footstep_2", false, out GrassFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Grass_Footstep_3", false, out GrassFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Grass_Footstep_4", false, out GrassFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Grass_Footstep_5", false, out GrassFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Grass_Footstep_6", false, out GrassFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Grass_Footstep_1", false, out GrassFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Grass_Footstep_2", false, out GrassFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Grass_Footstep_3", false, out GrassFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Grass_Footstep_4", false, out GrassFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Grass_Footstep_5", false, out GrassFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Grass_Footstep_6", false, out GrassFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Gravel_Footstep_1", false, out GravelFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Gravel_Footstep_2", false, out GravelFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Gravel_Footstep_3", false, out GravelFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Gravel_Footstep_4", false, out GravelFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Gravel_Footstep_5", false, out GravelFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Gravel_Footstep_6", false, out GravelFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Gravel_Footstep_1", false, out GravelFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Gravel_Footstep_2", false, out GravelFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Gravel_Footstep_3", false, out GravelFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Gravel_Footstep_4", false, out GravelFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Gravel_Footstep_5", false, out GravelFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Gravel_Footstep_6", false, out GravelFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Mud_Footstep_1", false, out MudFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Mud_Footstep_2", false, out MudFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Mud_Footstep_3", false, out MudFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Mud_Footstep_4", false, out MudFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Mud_Footstep_5", false, out MudFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Mud_Footstep_6", false, out MudFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Mud_Footstep_1", false, out MudFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Mud_Footstep_2", false, out MudFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Mud_Footstep_3", false, out MudFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Mud_Footstep_4", false, out MudFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Mud_Footstep_5", false, out MudFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Mud_Footstep_6", false, out MudFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Path_Footstep_1", false, out PathFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Path_Footstep_2", false, out PathFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Path_Footstep_3", false, out PathFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Path_Footstep_4", false, out PathFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Path_Footstep_5", false, out PathFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Path_Footstep_6", false, out PathFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Path_Footstep_1", false, out PathFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Path_Footstep_2", false, out PathFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Path_Footstep_3", false, out PathFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Path_Footstep_4", false, out PathFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Path_Footstep_5", false, out PathFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Path_Footstep_6", false, out PathFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Sand_Footstep_1", false, out SandFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Sand_Footstep_2", false, out SandFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Sand_Footstep_3", false, out SandFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Sand_Footstep_4", false, out SandFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Sand_Footstep_5", false, out SandFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Sand_Footstep_6", false, out SandFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Sand_Footstep_1", false, out SandFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Sand_Footstep_2", false, out SandFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Sand_Footstep_3", false, out SandFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Sand_Footstep_4", false, out SandFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Sand_Footstep_5", false, out SandFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Sand_Footstep_6", false, out SandFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Shallow_Water_Footstep_1", false, out ShallowWaterFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Shallow_Water_Footstep_2", false, out ShallowWaterFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Shallow_Water_Footstep_3", false, out ShallowWaterFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Shallow_Water_Footstep_4", false, out ShallowWaterFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Shallow_Water_Footstep_5", false, out ShallowWaterFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Shallow_Water_Footstep_6", false, out ShallowWaterFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Shallow_Water_Footstep_1", false, out ShallowWaterFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Shallow_Water_Footstep_2", false, out ShallowWaterFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Shallow_Water_Footstep_3", false, out ShallowWaterFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Shallow_Water_Footstep_4", false, out ShallowWaterFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Shallow_Water_Footstep_5", false, out ShallowWaterFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Shallow_Water_Footstep_6", false, out ShallowWaterFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Snow_Footstep_1", false, out SnowFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Snow_Footstep_2", false, out SnowFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Snow_Footstep_3", false, out SnowFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Snow_Footstep_4", false, out SnowFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Snow_Footstep_5", false, out SnowFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Snow_Footstep_6", false, out SnowFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Snow_Footstep_1", false, out SnowFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Snow_Footstep_2", false, out SnowFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Snow_Footstep_3", false, out SnowFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Snow_Footstep_4", false, out SnowFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Snow_Footstep_5", false, out SnowFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Snow_Footstep_6", false, out SnowFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Tile_Footstep_1", false, out TileFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Tile_Footstep_2", false, out TileFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Tile_Footstep_3", false, out TileFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Tile_Footstep_4", false, out TileFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Tile_Footstep_5", false, out TileFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Tile_Footstep_6", false, out TileFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Tile_Footstep_1", false, out TileFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Tile_Footstep_2", false, out TileFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Tile_Footstep_3", false, out TileFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Tile_Footstep_4", false, out TileFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Tile_Footstep_5", false, out TileFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Tile_Footstep_6", false, out TileFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Wood_Footstep_1", false, out WoodFootstepsMain[0]);
+                success &= modManager.TryGetAsset("HQ_Wood_Footstep_2", false, out WoodFootstepsMain[1]);
+                success &= modManager.TryGetAsset("HQ_Wood_Footstep_3", false, out WoodFootstepsMain[2]);
+                success &= modManager.TryGetAsset("HQ_Wood_Footstep_4", false, out WoodFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("HQ_Wood_Footstep_5", false, out WoodFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("HQ_Wood_Footstep_6", false, out WoodFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Wood_Footstep_1", false, out WoodFootstepsMain[0]);
-            success &= modManager.TryGetAsset("Wood_Footstep_2", false, out WoodFootstepsMain[1]);
-            success &= modManager.TryGetAsset("Wood_Footstep_3", false, out WoodFootstepsMain[2]);
-            success &= modManager.TryGetAsset("Wood_Footstep_4", false, out WoodFootstepsAlt[0]);
-            success &= modManager.TryGetAsset("Wood_Footstep_5", false, out WoodFootstepsAlt[1]);
-            success &= modManager.TryGetAsset("Wood_Footstep_6", false, out WoodFootstepsAlt[2]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Hard_Landing_1", false, out ChainmailHardLanding[0]);
+                success &= modManager.TryGetAsset("HQ_Chainmail_Hard_Landing_2", false, out ChainmailHardLanding[1]);
 
-            success &= modManager.TryGetAsset("Chainmail_Hard_Landing_1", false, out ChainmailHardLanding[0]);
-            success &= modManager.TryGetAsset("Chainmail_Hard_Landing_2", false, out ChainmailHardLanding[1]);
+                success &= modManager.TryGetAsset("HQ_Leather_Hard_Landing_1", false, out LeatherHardLanding[0]);
+                success &= modManager.TryGetAsset("HQ_Leather_Hard_Landing_2", false, out LeatherHardLanding[1]);
 
-            success &= modManager.TryGetAsset("Leather_Hard_Landing_1", false, out LeatherHardLanding[0]);
-            success &= modManager.TryGetAsset("Leather_Hard_Landing_2", false, out LeatherHardLanding[1]);
+                success &= modManager.TryGetAsset("HQ_Plate_Hard_Landing_1", false, out PlateHardLanding[0]);
+                success &= modManager.TryGetAsset("HQ_Plate_Hard_Landing_2", false, out PlateHardLanding[1]);
 
-            success &= modManager.TryGetAsset("Plate_Hard_Landing_1", false, out PlateHardLanding[0]);
-            success &= modManager.TryGetAsset("Plate_Hard_Landing_2", false, out PlateHardLanding[1]);
+                success &= modManager.TryGetAsset("HQ_Unarmored_Hard_Landing_1", false, out UnarmoredHardLanding[0]);
+                success &= modManager.TryGetAsset("HQ_Unarmored_Hard_Landing_2", false, out UnarmoredHardLanding[1]);
 
-            success &= modManager.TryGetAsset("Unarmored_Hard_Landing_1", false, out UnarmoredHardLanding[0]);
-            success &= modManager.TryGetAsset("Unarmored_Hard_Landing_2", false, out UnarmoredHardLanding[1]);
+                success &= modManager.TryGetAsset("HQ_Water_Landing_1", false, out WaterLandingSound[0]);
+            }
+            else
+            {
+                success &= modManager.TryGetAsset("LQ_Chainmail_Footstep_1", false, out ChainmailFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Footstep_2", false, out ChainmailFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Footstep_3", false, out ChainmailFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Footstep_4", false, out ChainmailFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Footstep_5", false, out ChainmailFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Footstep_6", false, out ChainmailFootstepsAlt[2]);
 
-            success &= modManager.TryGetAsset("Water_Landing_1", false, out WaterLandingSound[0]);
+                success &= modManager.TryGetAsset("LQ_Leather_Footstep_1", false, out LeatherFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Leather_Footstep_2", false, out LeatherFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Leather_Footstep_3", false, out LeatherFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Leather_Footstep_4", false, out LeatherFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Leather_Footstep_5", false, out LeatherFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Leather_Footstep_6", false, out LeatherFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Plate_Footstep_1", false, out PlateFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Plate_Footstep_2", false, out PlateFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Plate_Footstep_3", false, out PlateFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Plate_Footstep_4", false, out PlateFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Plate_Footstep_5", false, out PlateFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Plate_Footstep_6", false, out PlateFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Unarmored_Footstep_1", false, out UnarmoredFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Unarmored_Footstep_2", false, out UnarmoredFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Unarmored_Footstep_3", false, out UnarmoredFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Unarmored_Footstep_4", false, out UnarmoredFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Unarmored_Footstep_5", false, out UnarmoredFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Unarmored_Footstep_6", false, out UnarmoredFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Chainmail_Swaying_1", false, out ChainmailSwaying[0]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Swaying_2", false, out ChainmailSwaying[1]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Swaying_3", false, out ChainmailSwaying[2]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Swaying_4", false, out ChainmailSwaying[3]);
+
+                success &= modManager.TryGetAsset("LQ_Leather_Swaying_1", false, out LeatherSwaying[0]);
+                success &= modManager.TryGetAsset("LQ_Leather_Swaying_2", false, out LeatherSwaying[1]);
+                success &= modManager.TryGetAsset("LQ_Leather_Swaying_3", false, out LeatherSwaying[2]);
+                success &= modManager.TryGetAsset("LQ_Leather_Swaying_4", false, out LeatherSwaying[3]);
+
+                success &= modManager.TryGetAsset("LQ_Plate_Swaying_1", false, out PlateSwaying[0]);
+                success &= modManager.TryGetAsset("LQ_Plate_Swaying_2", false, out PlateSwaying[1]);
+                success &= modManager.TryGetAsset("LQ_Plate_Swaying_3", false, out PlateSwaying[2]);
+                success &= modManager.TryGetAsset("LQ_Plate_Swaying_4", false, out PlateSwaying[3]);
+
+                success &= modManager.TryGetAsset("LQ_Deep_Water_Footstep_1", false, out DeepWaterFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Deep_Water_Footstep_2", false, out DeepWaterFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Deep_Water_Footstep_3", false, out DeepWaterFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Deep_Water_Footstep_4", false, out DeepWaterFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Deep_Water_Footstep_5", false, out DeepWaterFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Deep_Water_Footstep_6", false, out DeepWaterFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Grass_Footstep_1", false, out GrassFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Grass_Footstep_2", false, out GrassFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Grass_Footstep_3", false, out GrassFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Grass_Footstep_4", false, out GrassFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Grass_Footstep_5", false, out GrassFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Grass_Footstep_6", false, out GrassFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Gravel_Footstep_1", false, out GravelFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Gravel_Footstep_2", false, out GravelFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Gravel_Footstep_3", false, out GravelFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Gravel_Footstep_4", false, out GravelFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Gravel_Footstep_5", false, out GravelFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Gravel_Footstep_6", false, out GravelFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Mud_Footstep_1", false, out MudFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Mud_Footstep_2", false, out MudFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Mud_Footstep_3", false, out MudFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Mud_Footstep_4", false, out MudFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Mud_Footstep_5", false, out MudFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Mud_Footstep_6", false, out MudFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Path_Footstep_1", false, out PathFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Path_Footstep_2", false, out PathFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Path_Footstep_3", false, out PathFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Path_Footstep_4", false, out PathFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Path_Footstep_5", false, out PathFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Path_Footstep_6", false, out PathFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Sand_Footstep_1", false, out SandFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Sand_Footstep_2", false, out SandFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Sand_Footstep_3", false, out SandFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Sand_Footstep_4", false, out SandFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Sand_Footstep_5", false, out SandFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Sand_Footstep_6", false, out SandFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Shallow_Water_Footstep_1", false, out ShallowWaterFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Shallow_Water_Footstep_2", false, out ShallowWaterFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Shallow_Water_Footstep_3", false, out ShallowWaterFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Shallow_Water_Footstep_4", false, out ShallowWaterFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Shallow_Water_Footstep_5", false, out ShallowWaterFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Shallow_Water_Footstep_6", false, out ShallowWaterFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Snow_Footstep_1", false, out SnowFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Snow_Footstep_2", false, out SnowFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Snow_Footstep_3", false, out SnowFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Snow_Footstep_4", false, out SnowFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Snow_Footstep_5", false, out SnowFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Snow_Footstep_6", false, out SnowFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Tile_Footstep_1", false, out TileFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Tile_Footstep_2", false, out TileFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Tile_Footstep_3", false, out TileFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Tile_Footstep_4", false, out TileFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Tile_Footstep_5", false, out TileFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Tile_Footstep_6", false, out TileFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Wood_Footstep_1", false, out WoodFootstepsMain[0]);
+                success &= modManager.TryGetAsset("LQ_Wood_Footstep_2", false, out WoodFootstepsMain[1]);
+                success &= modManager.TryGetAsset("LQ_Wood_Footstep_3", false, out WoodFootstepsMain[2]);
+                success &= modManager.TryGetAsset("LQ_Wood_Footstep_4", false, out WoodFootstepsAlt[0]);
+                success &= modManager.TryGetAsset("LQ_Wood_Footstep_5", false, out WoodFootstepsAlt[1]);
+                success &= modManager.TryGetAsset("LQ_Wood_Footstep_6", false, out WoodFootstepsAlt[2]);
+
+                success &= modManager.TryGetAsset("LQ_Chainmail_Hard_Landing_1", false, out ChainmailHardLanding[0]);
+                success &= modManager.TryGetAsset("LQ_Chainmail_Hard_Landing_2", false, out ChainmailHardLanding[1]);
+
+                success &= modManager.TryGetAsset("LQ_Leather_Hard_Landing_1", false, out LeatherHardLanding[0]);
+                success &= modManager.TryGetAsset("LQ_Leather_Hard_Landing_2", false, out LeatherHardLanding[1]);
+
+                success &= modManager.TryGetAsset("LQ_Plate_Hard_Landing_1", false, out PlateHardLanding[0]);
+                success &= modManager.TryGetAsset("LQ_Plate_Hard_Landing_2", false, out PlateHardLanding[1]);
+
+                success &= modManager.TryGetAsset("LQ_Unarmored_Hard_Landing_1", false, out UnarmoredHardLanding[0]);
+                success &= modManager.TryGetAsset("LQ_Unarmored_Hard_Landing_2", false, out UnarmoredHardLanding[1]);
+
+                success &= modManager.TryGetAsset("LQ_Water_Landing_1", false, out WaterLandingSound[0]);
+            }
 
             if (!success)
-                throw new Exception("ImmersiveFootsteps: Missing sound asset");
+                throw new Exception("[Warning] ImmersiveFootsteps: Missing sound asset");
         }
         
 

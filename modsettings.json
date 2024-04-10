@@ -2,6 +2,25 @@
     "Version": "1.00",
     "Sections": [
 	{
+            "Name": "AudioQualitySettings",
+            "Description": "Related To Sound-Clip Quality Settings",
+            "IsAdvanced": false,
+            "Keys": [
+				{
+                    "Options": [
+                        "Low-Quality (Retro)",
+						"High-Quality"
+                    ],
+                    "Value": 0,
+                    "Name": "SoundClipQuality",
+                    "Description": "What Quality Sound-Clips Get Used",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.MultipleChoiceKey"
+                }
+            ],
+            "$version": "v1"
+        },
+		{
             "Name": "FootstepSettings",
             "Description": "Related To Footstep Sound Settings",
             "IsAdvanced": false,
@@ -15,7 +34,7 @@
                 },
 				{
                     "Min": 0.0,
-                    "Max": 5.0,
+                    "Max": 10.0,
                     "Value": 1.0,
                     "Name": "FootstepVolumeMulti",
                     "Description": "The Volume Level Multiplier For Footstep Sounds",
@@ -48,7 +67,7 @@
                 },
 				{
                     "Min": 0.0,
-                    "Max": 5.0,
+                    "Max": 10.0,
                     "Value": 1.0,
                     "Name": "ArmorSwayVolumeMulti",
                     "Description": "The Volume Level Multiplier For Armor Sway Sounds",

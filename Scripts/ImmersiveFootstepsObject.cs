@@ -660,17 +660,5 @@ namespace ImmersiveFootsteps
             IMFM.LastSwaySoundPlayed = clip;
             return clip;
         }
-
-        public static AudioClip GetTestFootstepClip()
-        {
-            AudioClip clip = null;
-
-            clip = RollRandomFootstepAudioClip(IMFM.TestFootstepSound);
-
-            if (clip == null)
-                clip = IMFM.TestFootstepSound[0];
-
-            return clip;
-        }
     }
 }
