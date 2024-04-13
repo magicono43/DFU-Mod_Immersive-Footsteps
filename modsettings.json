@@ -87,14 +87,28 @@
             "$version": "v1"
         },
 		{
-            "Name": "CompatibilityWarningSettings",
-            "Description": "Related To Automatic Mod Compatibility Warning Messages",
+            "Name": "ErrorLoggingAndCompatibilitySettings",
+            "Description": "Related To Error Logging And Automatic Mod Compatibility Messages",
             "IsAdvanced": false,
             "Keys": [
 				{
                     "Value": true,
                     "Name": "AllowModCompatWarnings",
                     "Description": "If Mod Should Give Warning Messages About Detected Incompatibility Issues || Default = True",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.ToggleKey"
+                },
+				{
+                    "Value": false,
+                    "Name": "AllowVerboseErrorLogging",
+                    "Description": "If Mod Should Print Full & Verbose Error Logs For Debugging || Default = False",
+                    "$version": "v1",
+                    "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.ToggleKey"
+                },
+				{
+                    "Value": true,
+                    "Name": "DoNotSpamExceptionsLogs",
+                    "Description": "Only Log Mod Exceptions Once Per Session, To Not Fill Log File || Default = True",
                     "$version": "v1",
                     "$type": "DaggerfallWorkshop.Game.Utility.ModSupport.ModSettings.ToggleKey"
                 }

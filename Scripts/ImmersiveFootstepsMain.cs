@@ -3,8 +3,8 @@
 // License:         MIT License (http://www.opensource.org/licenses/mit-license.php)
 // Author:          Kirk.O
 // Created On: 	    2/13/2024, 9:00 PM
-// Last Edit:		4/9/2024, 9:30 PM
-// Version:			1.00
+// Last Edit:		4/13/2024, 2:30 PM
+// Version:			1.01
 // Special Thanks:  Joshcamas
 // Modifier:		
 
@@ -44,10 +44,13 @@ namespace ImmersiveFootsteps
         public static float ArmorSwayFrequency { get; set; }
 
         public static bool AllowCompatibilityWarnings { get; set; }
+        public static bool AllowVerboseErrorLogging { get; set; }
+        public static bool DoNotSpamExceptionsLogs { get; set; }
 
         // Mod Compatibility Check Values
         public static bool BetterAmbienceCheck { get; set; }
         public static bool BetterAmbienceFootstepsModuleCheck { get; set; }
+        public static bool TemperedInteriorsCheck { get; set; }
         public static bool TravelOptionsCheck { get; set; }
 
         // Global Variables
@@ -72,6 +75,8 @@ namespace ImmersiveFootsteps
         public static float plateSwayInterval = 0.6f;
         public static float chainSwayInterval = 0.6f;
         public static float leatherSwayInterval = 0.6f;
+
+        public static bool exceptionLogging = true;
 
         #region Mod Sound Variables
 
@@ -187,7 +192,9 @@ namespace ImmersiveFootsteps
             ArmorSwayVolumeMulti = mod.GetSettings().GetValue<float>("ArmorSwaySettings", "ArmorSwayVolumeMulti");
             ArmorSwayFrequency = mod.GetSettings().GetValue<float>("ArmorSwaySettings", "ArmorSwayFrequency");
 
-            AllowCompatibilityWarnings = mod.GetSettings().GetValue<bool>("CompatibilityWarningSettings", "AllowModCompatWarnings");
+            AllowCompatibilityWarnings = mod.GetSettings().GetValue<bool>("ErrorLoggingAndCompatibilitySettings", "AllowModCompatWarnings");
+            AllowVerboseErrorLogging = mod.GetSettings().GetValue<bool>("ErrorLoggingAndCompatibilitySettings", "AllowVerboseErrorLogging");
+            DoNotSpamExceptionsLogs = mod.GetSettings().GetValue<bool>("ErrorLoggingAndCompatibilitySettings", "DoNotSpamExceptionsLogs");
 
             stepInterval = FootstepFrequency;
             plateSwayInterval = ArmorSwayFrequency;
@@ -198,6 +205,11 @@ namespace ImmersiveFootsteps
             {
                 // Reloads Audio Resources If "Audio Quality" Setting Has Been Changed
                 Instance.LoadAudio();
+            }
+
+            if (change.HasChanged("ErrorLoggingAndCompatibilitySettings", "DoNotSpamExceptionsLogs"))
+            {
+                exceptionLogging = true;
             }
         }
 
@@ -213,6 +225,10 @@ namespace ImmersiveFootsteps
             }
             else { BetterAmbienceCheck = false; }
 
+            // Tempered Interiors mod: https://www.nexusmods.com/daggerfallunity/mods/392
+            Mod temperedInteriors = ModManager.Instance.GetModFromGUID("a1ec918d-fad6-4050-99ec-d07043a0308a");
+            TemperedInteriorsCheck = temperedInteriors != null ? true : false;
+
             // Travel Options mod: https://www.nexusmods.com/daggerfallunity/mods/122
             Mod travelOptions = ModManager.Instance.GetModFromGUID("93f3ad1c-83cc-40ac-b762-96d2f47f2e05");
             TravelOptionsCheck = travelOptions != null ? true : false;
@@ -220,53 +236,56 @@ namespace ImmersiveFootsteps
 
         public void UpdateFootsteps_OnTransitionInterior(PlayerEnterExit.TransitionEventArgs args)
         {
-            DFLocation.BuildingTypes buildingType = GameManager.Instance.PlayerEnterExit.BuildingDiscoveryData.buildingType;
-            PlayerGPS.DiscoveredBuilding buildingData = GameManager.Instance.PlayerEnterExit.BuildingDiscoveryData;
-
-            if (GameManager.Instance.PlayerEnterExit.IsPlayerInside)
+            try
             {
-                if (buildingType != DFLocation.BuildingTypes.None)
+                DFLocation.BuildingTypes buildingType = GameManager.Instance.PlayerEnterExit.BuildingDiscoveryData.buildingType;
+                PlayerGPS.DiscoveredBuilding buildingData = GameManager.Instance.PlayerEnterExit.BuildingDiscoveryData;
+
+                if (GameManager.Instance.PlayerEnterExit.IsPlayerInside)
                 {
-                    GameObject interiorGO = args.DaggerfallInterior.gameObject;
-
-                    if (interiorGO != null)
+                    if (buildingType != DFLocation.BuildingTypes.None)
                     {
-                        GameObject modelsGO = interiorGO.transform.Find("Models").gameObject;
+                        GameObject interiorGO = args.DaggerfallInterior.gameObject;
 
-                        if (modelsGO != null)
+                        if (interiorGO != null)
                         {
-                            GameObject combinedModelsGO = modelsGO.transform.Find("CombinedModels").gameObject;
+                            GameObject modelsGO = interiorGO.transform.Find("Models").gameObject;
 
-                            if (combinedModelsGO != null)
+                            if (modelsGO != null)
                             {
-                                MeshRenderer meshRender = combinedModelsGO.GetComponent<MeshRenderer>();
+                                GameObject combinedModelsGO = modelsGO.transform.Find("CombinedModels").gameObject;
 
-                                if (meshRender != null)
+                                if (combinedModelsGO != null)
                                 {
-                                    Material[] mats = meshRender.materials;
-                                    for (int i = 0; i < mats.Length; i++)
+                                    MeshRenderer meshRender = combinedModelsGO.GetComponent<MeshRenderer>();
+
+                                    if (meshRender != null)
                                     {
-                                        string matArchive = GetFormattedTextureArchiveFromMaterialName(mats[i].name);
-                                        if (matArchive == string.Empty) { continue; }
-                                        else
+                                        Material[] mats = meshRender.materials;
+                                        for (int i = 0; i < mats.Length; i++)
                                         {
-                                            if (ImmersiveFootstepsObject.CheckBuildingClimateFloorTypeTables("Wood_Floor", matArchive))
+                                            string matArchive = GetFormattedTextureArchiveFromMaterialName(mats[i].name);
+                                            if (matArchive == string.Empty) { continue; }
+                                            else
                                             {
-                                                CurrInteriorFloorType = 2;
-                                                UpdateInteriorArmorFootstepSounds();
-                                                return;
-                                            }
-                                            else if (ImmersiveFootstepsObject.CheckBuildingClimateFloorTypeTables("Stone_Floor", matArchive))
-                                            {
-                                                CurrInteriorFloorType = 1;
-                                                UpdateInteriorArmorFootstepSounds();
-                                                return;
-                                            }
-                                            else if (ImmersiveFootstepsObject.CheckBuildingClimateFloorTypeTables("Tile_Floor", matArchive))
-                                            {
-                                                CurrInteriorFloorType = 0;
-                                                UpdateInteriorArmorFootstepSounds();
-                                                return;
+                                                if (ImmersiveFootstepsObject.CheckBuildingClimateFloorTypeTables("Wood_Floor", matArchive))
+                                                {
+                                                    CurrInteriorFloorType = 2;
+                                                    UpdateInteriorArmorFootstepSounds();
+                                                    return;
+                                                }
+                                                else if (ImmersiveFootstepsObject.CheckBuildingClimateFloorTypeTables("Stone_Floor", matArchive))
+                                                {
+                                                    CurrInteriorFloorType = 1;
+                                                    UpdateInteriorArmorFootstepSounds();
+                                                    return;
+                                                }
+                                                else if (ImmersiveFootstepsObject.CheckBuildingClimateFloorTypeTables("Tile_Floor", matArchive))
+                                                {
+                                                    CurrInteriorFloorType = 0;
+                                                    UpdateInteriorArmorFootstepSounds();
+                                                    return;
+                                                }
                                             }
                                         }
                                     }
@@ -274,8 +293,15 @@ namespace ImmersiveFootsteps
                             }
                         }
                     }
+                    // If the player is confirmed to be "inside", but another check fails after that, just default the footstep sound to the "Tile" one.
+                    CurrInteriorFloorType = 0;
+                    UpdateInteriorArmorFootstepSounds();
                 }
-                // If the player is confirmed to be "inside", but another check fails after that, just default the footstep sound to the "Tile" one.
+            }
+            catch (Exception e)
+            {
+                LogModException(e, 1);
+
                 CurrInteriorFloorType = 0;
                 UpdateInteriorArmorFootstepSounds();
             }
@@ -312,43 +338,87 @@ namespace ImmersiveFootsteps
 
         public void UpdateFootsteps_OnTransitionExterior(PlayerEnterExit.TransitionEventArgs args)
         {
-            CurrInteriorFloorType = 0;
-            ImmersiveFootstepsObject.Instance.lastTileMapIndex = 0;
-            ImmersiveFootstepsObject.Instance.DetermineExteriorClimateFootstep();
+            try
+            {
+                CurrInteriorFloorType = 0;
+                ImmersiveFootstepsObject.Instance.lastTileMapIndex = 0;
+                ImmersiveFootstepsObject.Instance.DetermineExteriorClimateFootstep();
+            }
+            catch (Exception e)
+            {
+                LogModException(e, 2);
+
+                CurrInteriorFloorType = 0;
+                UpdateInteriorArmorFootstepSounds();
+            }
         }
 
         public void UpdateFootsteps_OnTransitionDungeonInterior(PlayerEnterExit.TransitionEventArgs args)
         {
-            CurrInteriorFloorType = 0;
-            UpdateInteriorArmorFootstepSounds();
+            try
+            {
+                CurrInteriorFloorType = 0;
+                UpdateInteriorArmorFootstepSounds();
+            }
+            catch (Exception e)
+            {
+                LogModException(e, 3);
+
+                CurrInteriorFloorType = 0;
+                UpdateInteriorArmorFootstepSounds();
+            }
         }
 
-        public static void UIManager_RefreshEquipSlotReferencesOnInventoryClose(object sender, EventArgs e)
+        public static void UIManager_RefreshEquipSlotReferencesOnInventoryClose(object sender, EventArgs eventArgs)
         {
-            if (!GameManager.Instance.StateManager.GameInProgress)
-                return;
-
-            if (GameManager.Instance.StateManager.LastState == StateManager.StateTypes.Game || GameManager.Instance.StateManager.LastState == StateManager.StateTypes.UI)
+            try
             {
-                if (DaggerfallUI.UIManager.WindowCount > 0)
-                    LastUIWindow = DaggerfallUI.Instance.UserInterfaceManager.TopWindow;
+                if (!GameManager.Instance.StateManager.GameInProgress)
+                    return;
 
-                if (DaggerfallUI.UIManager.WindowCount == 0 && LastUIWindow is DaggerfallInventoryWindow)
+                if (GameManager.Instance.StateManager.LastState == StateManager.StateTypes.Game || GameManager.Instance.StateManager.LastState == StateManager.StateTypes.UI)
                 {
-                    if (AllowFootstepSounds || AllowArmorSwaySounds) { RefreshEquipmentSlotReferences(); }
-                    else { } // Do nothing if both armor sound options are disabled, since there is no point in updating these values in that case.
+                    if (DaggerfallUI.UIManager.WindowCount > 0)
+                        LastUIWindow = DaggerfallUI.Instance.UserInterfaceManager.TopWindow;
+
+                    if (DaggerfallUI.UIManager.WindowCount == 0 && LastUIWindow is DaggerfallInventoryWindow)
+                    {
+                        if (AllowFootstepSounds || AllowArmorSwaySounds) { RefreshEquipmentSlotReferences(); }
+                        else { } // Do nothing if both armor sound options are disabled, since there is no point in updating these values in that case.
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                LogModException(e, 4);
+
+                CurrInteriorFloorType = 0;
+                UpdateInteriorArmorFootstepSounds();
             }
         }
 
         public void ModCompatibilityWarning_OnLoadSave(SaveData_v1 saveData)
         {
-            ReportModCompatibilityIssues();
+            try
+            {
+                ReportModCompatibilityIssues();
+            }
+            catch (Exception e)
+            {
+                LogModException(e, 5);
+            }
         }
 
-        public void ModCompatibilityWarning_OnStartGame(object sender, EventArgs e)
+        public void ModCompatibilityWarning_OnStartGame(object sender, EventArgs eventArgs)
         {
-            ReportModCompatibilityIssues();
+            try
+            {
+                ReportModCompatibilityIssues();
+            }
+            catch (Exception e)
+            {
+                LogModException(e, 6);
+            }
         }
 
         public void ReportModCompatibilityIssues()
@@ -375,6 +445,49 @@ namespace ImmersiveFootsteps
                 modCompatibilityWarningPopup.SetTextTokens(tokens);
                 modCompatibilityWarningPopup.ClickAnywhereToClose = true;
                 DaggerfallUI.UIManager.PushWindow(modCompatibilityWarningPopup);
+            }
+        }
+
+        public static void LogModException(Exception e, byte errorType = 0)
+        {
+            string errorName = "something generic was occuring";
+
+            switch(errorType)
+            {
+                case 1: errorName = "transitioning into an interior"; break;
+                case 2: errorName = "transitioning to an exterior"; break;
+                case 3: errorName = "transitioning into a dungeon"; break;
+                case 4: errorName = "the inventory window was being closed"; break;
+                case 5: errorName = "an existing save was being loaded"; break;
+                case 6: errorName = "a new character was just created"; break;
+                case 0:
+                default:
+                    break;
+            }
+
+            if (exceptionLogging)
+            {
+                if (AllowVerboseErrorLogging)
+                {
+                    Debug.LogErrorFormat("[ERROR] Immersive Footsteps: Exception has occured while {0}: " + e.ToString(), errorName);
+                    if (errorType == 1 && TemperedInteriorsCheck)
+                    {
+                        Debug.LogWarning("[Warning] Immersive Footsteps: The 'Tempered Interiors' mod appears to be active, this may be the cause of the above exception");
+                    }
+                }
+                else
+                {
+                    Debug.LogFormat("[ERROR] Immersive Footsteps: Exception has occured while {0}", errorName);
+                    if (errorType == 1 && TemperedInteriorsCheck)
+                    {
+                        Debug.Log("[Warning] Immersive Footsteps: The 'Tempered Interiors' mod appears to be active, this may be the cause of the above exception");
+                    }
+                }
+
+                if (DoNotSpamExceptionsLogs)
+                {
+                    exceptionLogging = false;
+                }
             }
         }
 
